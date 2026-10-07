@@ -1,0 +1,1989 @@
+# Ecoestructura<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoEstructura · Chequeo del Negocio</title>
+<style>
+  :root{
+    --verde:#2e7d32;
+    --verde-oscuro:#1b5e20;
+    --verde-claro:#e8f5e9;
+    --naranja:#ff7043;
+    --amarillo:#fbc02d;
+    --rojo:#e53935;
+    --fondo:#f4faf5;
+    --texto:#1f3a24;
+    --suave:#6b7d70;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(160deg,#fff8e1 0%,#e8f5e9 100%);
+    color:var(--texto);
+    min-height:100vh;
+    padding:20px 14px 60px;
+    line-height:1.5;
+  }
+  .contenedor{max-width:760px;margin:0 auto}
+
+  .encabezado{
+    background:linear-gradient(135deg,#e65100 0%,#ff7043 50%,#ffb74d 100%);
+    color:#fff;
+    padding:28px 22px;
+    border-radius:22px;
+    margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(230,81,0,.25);
+    position:relative;
+    overflow:hidden;
+  }
+  .encabezado::after{
+    content:"🌮🍔🥡";
+    position:absolute;right:-10px;top:-10px;
+    font-size:5rem;opacity:.18;transform:rotate(-10deg);
+  }
+  .encabezado h1{font-size:1.65rem;letter-spacing:-.5px;margin-bottom:6px}
+  .encabezado .subtitulo{font-size:.95rem;opacity:.95;margin-bottom:14px}
+  .insignias{display:flex;gap:8px;flex-wrap:wrap;font-size:.78rem}
+  .insignia{
+    background:rgba(255,255,255,.22);
+    padding:5px 11px;border-radius:99px;
+    border:1px solid rgba(255,255,255,.3);
+  }
+
+  .pantalla{display:none;animation:entrar .35s ease}
+  .pantalla.activa{display:block}
+  @keyframes entrar{
+    from{opacity:0;transform:translateY(15px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .tarjeta-inicio{
+    background:#fff;padding:32px 24px;
+    border-radius:22px;text-align:center;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+    border-top:5px solid var(--naranja);
+  }
+  .tarjeta-inicio .emoji-grande{font-size:4.5rem;margin-bottom:8px;animation:saludar 2.5s infinite}
+  @keyframes saludar{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+  .tarjeta-inicio h2{color:#bf360c;font-size:1.35rem;margin-bottom:8px}
+  .tarjeta-inicio p{color:var(--suave);margin-bottom:18px}
+  .tarjeta-inicio ul{text-align:left;list-style:none;margin:18px 0}
+  .tarjeta-inicio li{padding:7px 0;color:#445;display:flex;align-items:center;gap:10px}
+  .tarjeta-inicio li::before{content:"✓";color:var(--verde);font-weight:800;font-size:1.1rem}
+
+  .boton{
+    border:none;border-radius:99px;
+    padding:13px 26px;
+    font-size:1rem;font-weight:700;
+    cursor:pointer;transition:all .2s;
+    font-family:inherit;
+  }
+  .boton-principal{
+    background:linear-gradient(135deg,var(--naranja),#e65100);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(230,81,0,.3);
+  }
+  .boton-principal:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(230,81,0,.45)}
+  .boton-fantasma{background:transparent;color:var(--verde);border:2px solid var(--verde);margin-top:10px}
+  .boton-fantasma:hover{background:var(--verde-claro)}
+
+  .progreso{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:.82rem;color:var(--suave)}
+  .barra-progreso{flex:1;height:9px;background:#e0e0e0;border-radius:99px;overflow:hidden}
+  .barra-relleno{height:100%;background:linear-gradient(90deg,var(--naranja),var(--amarillo));border-radius:99px;transition:width .4s}
+  .corazon{font-size:1rem}
+
+  .tarjeta{
+    background:#fff;padding:24px 22px;
+    border-radius:22px;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+    border-left:5px solid var(--naranja);
+  }
+  .etiqueta-paso{
+    display:inline-block;
+    background:#fff3e0;color:#bf360c;
+    padding:3px 11px;border-radius:99px;
+    font-size:.7rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px;
+    margin-bottom:10px;
+  }
+  .pregunta{font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#263326}
+  .pregunta .resaltado{color:var(--naranja)}
+  .pista{font-size:.85rem;color:var(--suave);margin-bottom:16px;font-style:italic}
+
+  .campo{margin-bottom:13px}
+  .campo label{display:block;font-size:.82rem;font-weight:600;color:#445;margin-bottom:5px}
+  .campo input,.campo select,.campo textarea{
+    width:100%;padding:11px 14px;
+    border:2px solid #e0e0e0;border-radius:12px;
+    font-size:.95rem;font-family:inherit;
+    background:#fafafa;transition:.15s;
+  }
+  .campo textarea{min-height:80px;resize:vertical}
+  .campo input:focus,.campo select:focus,.campo textarea:focus{
+    outline:none;border-color:var(--naranja);background:#fff;
+  }
+
+  .opciones{display:grid;gap:9px}
+  .opciones.dos{grid-template-columns:1fr 1fr}
+  .opcion{
+    display:flex;align-items:center;gap:11px;
+    padding:13px 14px;
+    border:2px solid #ececec;border-radius:14px;
+    cursor:pointer;background:#fff;
+    transition:.15s;font-size:.93rem;
+  }
+  .opcion:hover{border-color:var(--naranja);background:#fff3e0;transform:translateX(2px)}
+  .opcion.seleccionada{border-color:var(--naranja);background:#fff3e0;box-shadow:0 4px 12px rgba(255,112,67,.18)}
+  .opcion input{display:none}
+  .opcion .icono{font-size:1.4rem;min-width:32px;text-align:center}
+  .opcion .texto{flex:1}
+  .opcion .texto b{display:block;color:#263326;margin-bottom:1px}
+  .opcion .texto small{color:var(--suave);font-size:.78rem}
+
+  .termometro{display:flex;gap:6px;margin:14px 0}
+  .termometro label{flex:1;cursor:pointer}
+  .termometro input{display:none}
+  .termometro .barra{
+    height:48px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:#fff;font-size:.85rem;
+    background:#e0e0e0;color:#888;
+    transition:.15s;
+  }
+  .termometro label:nth-child(1) .barra{background:#ef9a9a}
+  .termometro label:nth-child(2) .barra{background:#ffab91}
+  .termometro label:nth-child(3) .barra{background:#ffcc80}
+  .termometro label:nth-child(4) .barra{background:#aed581}
+  .termometro label:nth-child(5) .barra{background:#66bb6a}
+  .termometro label:hover .barra{transform:scale(1.04)}
+  .termometro input:checked + .barra{
+    transform:scale(1.08);
+    box-shadow:0 4px 14px rgba(0,0,0,.18);
+    border:3px solid #fff;
+    outline:2px solid currentColor;
+  }
+
+  .tarjetas-empaque{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+  .tarjeta-empaque{
+    border:2px solid #ececec;border-radius:14px;
+    padding:14px;text-align:center;cursor:pointer;
+    background:#fff;transition:.15s;
+  }
+  .tarjeta-empaque:hover{border-color:var(--naranja);transform:translateY(-2px)}
+  .tarjeta-empaque.seleccionada{border-color:var(--naranja);background:#fff3e0}
+  .tarjeta-empaque input{display:none}
+  .tarjeta-empaque .icono-empaque{font-size:2.2rem;margin-bottom:4px}
+  .tarjeta-empaque .nombre{font-size:.85rem;font-weight:700}
+  .tarjeta-empaque .detalle{font-size:.72rem;color:var(--suave);margin-top:3px}
+
+  .campo-costo{
+    display:flex;gap:8px;align-items:center;
+    background:#fafafa;border:2px solid #e0e0e0;
+    border-radius:14px;padding:8px 12px;margin-top:10px;
+  }
+  .campo-costo .simbolo{font-weight:700;color:#bf360c}
+  .campo-costo input{
+    flex:1;border:none;background:transparent;
+    font-size:1.1rem;font-weight:700;padding:6px;
+  }
+  .campo-costo input:focus{outline:none}
+
+  .envoladura-control{margin:18px 0}
+  .valor-carrusel{
+    text-align:center;font-size:1.4rem;font-weight:800;
+    color:#bf360c;margin-bottom:8px;
+  }
+  .carrusel{
+    width:100%;-webkit-appearance:none;height:8px;
+    border-radius:99px;background:#e0e0e0;outline:none;
+  }
+  .carrusel::-webkit-slider-thumb{
+    -webkit-appearance:none;width:24px;height:24px;
+    border-radius:50%;background:var(--naranja);
+    cursor:pointer;border:3px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.2);
+  }
+  .carrusel::-moz-range-thumb{
+    width:24px;height:24px;border-radius:50%;
+    background:var(--naranja);cursor:pointer;border:3px solid #fff;
+  }
+  .etiquetas-carrusel{display:flex;justify-content:space-between;font-size:.72rem;color:var(--suave);margin-top:4px}
+
+  .lista-chequeo{display:grid;gap:8px;margin-top:10px}
+  .item-chequeo{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 14px;border:2px solid #ececec;
+    border-radius:12px;cursor:pointer;background:#fff;
+    transition:.15s;
+  }
+  .item-chequeo:hover{border-color:var(--naranja);background:#fff8f3}
+  .item-chequeo.seleccionada{border-color:var(--naranja);background:#fff3e0}
+  .item-chequeo input{display:none}
+  .item-chequeo .casilla{
+    width:22px;height:22px;border:2px solid #ccc;
+    border-radius:6px;display:flex;align-items:center;
+    justify-content:center;flex-shrink:0;transition:.15s;
+  }
+  .item-chequeo.seleccionada .casilla{
+    background:var(--naranja);border-color:var(--naranja);
+    color:#fff;
+  }
+  .item-chequeo.seleccionada .casilla::before{content:"✓";font-weight:800;font-size:.9rem}
+
+  .escenario{
+    background:linear-gradient(135deg,#fff8e1 0%,#fff3e0 100%);
+    border-left:4px solid var(--naranja);
+    padding:14px;border-radius:12px;margin-bottom:14px;
+  }
+  .escenario h4{color:#bf360c;font-size:.95rem;margin-bottom:4px}
+  .escenario p{color:#666;font-size:.85rem}
+
+  .tarjeta-resultado{
+    background:linear-gradient(135deg,#fff 0%,#fff8e1 100%);
+    padding:28px 22px;border-radius:22px;text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    border:2px solid var(--naranja);
+  }
+  .medalla{font-size:4.5rem;animation:girar 3s infinite}
+  @keyframes girar{0%,100%{transform:rotate(0)}50%{transform:rotate(15deg)}}
+  .tarjeta-resultado h2{color:#bf360c;margin:8px 0;font-size:1.4rem}
+  .puntaje-grande{
+    font-size:2.5rem;font-weight:800;
+    background:linear-gradient(135deg,var(--naranja),var(--verde));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .nivel-resultado{
+    display:inline-block;background:var(--verde);color:#fff;
+    padding:6px 16px;border-radius:99px;font-weight:700;
+    font-size:.9rem;margin:10px 0;
+  }
+  .recomendaciones{
+    background:#fff;padding:16px;border-radius:14px;
+    margin-top:14px;text-align:left;
+    border:2px dashed #ffcc80;
+  }
+  .recomendaciones h4{color:#bf360c;margin-bottom:8px;font-size:.95rem}
+  .recomendaciones li{padding:4px 0;color:#445;font-size:.87rem;list-style:none}
+  .recomendaciones li::before{content:"💡 ";margin-right:6px}
+
+  .navegacion{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+  .navegacion .boton{padding:11px 22px;font-size:.92rem}
+
+  @media(max-width:540px){
+    .encabezado{padding:22px 18px}
+    .encabezado h1{font-size:1.4rem}
+    .tarjeta{padding:20px 16px}
+    .opciones.dos{grid-template-columns:1fr}
+    .tarjetas-empaque{grid-template-columns:1fr}
+    .termometro .barra{font-size:.7rem;height:42px}
+  }
+</style>
+</head>
+<body>
+<div class="contenedor">
+
+<!-- ENCABEZADO -->
+<div class="encabezado">
+  <h1>🌶️ Chequeo del Negocio 📊</h1>
+  <p class="subtitulo">Diagnóstico rápido para tu negocio de comida. Sin enredos ni formularios eternos.</p>
+  <div class="insignias">
+    <span class="insignia">⏱️ 5 minutos</span>
+    <span class="insignia">🎯 De 18 a 23 años</span>
+    <span class="insignia">🧑‍🍳 Food trucks y cocinas ocultas</span>
+    <span class="insignia">🏅 10 niveles</span>
+  </div>
+</div>
+
+<!-- ========== P1: INICIO ========== -->
+<div class="pantalla activa" id="n-inicio">
+  <div class="tarjeta-inicio">
+    <div class="emoji-grande">🌮🧑‍🍳</div>
+    <h2>¿Manejas o haces parte de un negocio de comida?</h2>
+    <p>Food truck, cocina oculta, local, emprendimiento desde tu casa, el que más vende en tu barrio… Si vendes comida para llevar, este chequeo es para ti.</p>
+    <ul>
+      <li>Descubre qué tan listo estás para usar un empaque biodegradable</li>
+      <li>Solo te lleva 5 minutos, sin formularios eternos</li>
+      <li>Al final te llevas tu <b>nivel de madurez verde</b> 🌿</li>
+      <li>Si quieres, te contactamos para una prueba piloto gratis 🎁</li>
+    </ul>
+    <button class="boton boton-principal" onclick="ir(1)">⚡ Empezar diagnóstico</button>
+    <p style="margin-top:14px;font-size:.78rem;color:var(--suave)">EcoEstructura · Proyecto de Producto y Consumidor · UJTL</p>
+  </div>
+</div>
+
+<!-- ========== P2: PERFIL ========== -->
+<div class="pantalla" id="n-perfil">
+  <div class="progreso">
+    <span>Pregunta <b>1</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:11%"></div></div>
+    <span class="corazon">🔥 0</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🪪 Paso 1 · Tu negocio en 30 segundos</span>
+    <div class="pregunta">¿Cuál es tu edad?</div>
+    <div class="pista">Necesitamos esto para filtrar la muestra del proyecto</div>
+    <div class="campo">
+      <select id="neg_edad">
+        <option value="">Elige tu edad</option>
+        <option>18</option><option>19</option><option>20</option>
+        <option>21</option><option>22</option><option>23</option>
+      </select>
+    </div>
+
+    <div class="pregunta" style="margin-top:14px">¿Cómo es tu negocio?</div>
+    <div class="pista">Elige el que más se parezca al tuyo</div>
+
+    <div class="opciones dos">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="food_truck">
+        <span class="icono">🚚</span>
+        <span class="texto"><b>Food truck</b><small>Callejero o de eventos</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="cocina_oculta">
+        <span class="icono">🏠</span>
+        <span class="texto"><b>Cocina oculta</b><small>Solo domicilios</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="local">
+        <span class="icono">🏪</span>
+        <span class="texto"><b>Local o restaurante pequeño</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="casa">
+        <span class="icono">👩‍🍳</span>
+        <span class="texto"><b>Emprendimiento desde casa</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="startup">
+        <span class="icono">🚀</span>
+        <span class="texto"><b>Startup de comida</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_tipo" value="otro">
+        <span class="icono">✨</span>
+        <span class="texto"><b>Otro</b></span>
+      </label>
+    </div>
+
+    <div class="campo" style="margin-top:14px">
+      <label>¿Cómo se llama o cómo le dicen a tu negocio? <span style="color:var(--suave);font-weight:400">(opcional)</span></label>
+      <input type="text" id="neg_nombre" placeholder="Ejemplo: Las Empanadas de la Esquina">
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(0)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(1,2)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P3: VOLUMEN ========== -->
+<div class="pantalla" id="n-volumen">
+  <div class="progreso">
+    <span>Pregunta <b>2</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:22%"></div></div>
+    <span class="corazon">🔥 1</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">📦 Paso 2 · ¿Cuánta comida sale por semana?</span>
+    <div class="pregunta">¿Cuántos pedidos para llevar o a domicilio manejas <span class="resaltado">por semana</span>?</div>
+    <div class="pista">Aproxímate, no es una auditoría tributaria 😄</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_volumen" value="menos_30">
+        <span class="icono">📦</span>
+        <span class="texto"><b>Menos de 30</b><small>Estoy empezando</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_volumen" value="30-100">
+        <span class="icono">📦📦</span>
+        <span class="texto"><b>Entre 30 y 100</b><small>Ya tengo clientela fiel</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_volumen" value="100-300">
+        <span class="icono">📦📦📦</span>
+        <span class="texto"><b>Entre 100 y 300</b><small>Volumen fuerte</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_volumen" value="mas_300">
+        <span class="icono">📦📦📦📦</span>
+        <span class="texto"><b>Más de 300</b><small>Operación grande</small></span>
+      </label>
+    </div>
+
+    <div style="margin-top:18px">
+      <p style="font-weight:600;margin-bottom:8px">¿Cuánto gastas al mes en empaques desechables? (aproximado)</p>
+      <div class="campo-costo">
+        <span class="simbolo">$</span>
+        <input type="number" id="neg_costo" placeholder="200.000" min="0">
+        <span class="simbolo" style="color:var(--suave)">COP</span>
+      </div>
+      <p style="font-size:.78rem;color:var(--suave);margin-top:6px">💡 Si no lo sabes exacto, da un aproximado.</p>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(1)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(2,3)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P4: EMPAQUE ACTUAL ========== -->
+<div class="pantalla" id="n-empaque">
+  <div class="progreso">
+    <span>Pregunta <b>3</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:33%"></div></div>
+    <span class="corazon">🔥 2</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🥡 Paso 3 · Tu empaque hoy</span>
+    <div class="pregunta">¿Qué tipo de empaque usas <span class="resaltado">ahora</span>?</div>
+    <div class="pista">El principal, el que más sale por la puerta</div>
+
+    <div class="tarjetas-empaque">
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="icopor">
+        <div class="icono-empaque">🥡</div>
+        <div class="nombre">Icopor</div>
+        <div class="detalle">Poliestireno expandido</div>
+      </label>
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="plastico">
+        <div class="icono-empaque">🛍️</div>
+        <div class="nombre">Plástico</div>
+        <div class="detalle">PET, polipropileno</div>
+      </label>
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="carton">
+        <div class="icono-empaque">📦</div>
+        <div class="nombre">Cartón genérico</div>
+        <div class="detalle">Sin marca</div>
+      </label>
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="kraft">
+        <div class="icono-empaque">🌿</div>
+        <div class="nombre">Kraft o papel</div>
+        <div class="detalle">Más ecológico</div>
+      </label>
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="biodegradable">
+        <div class="icono-empaque">🌱</div>
+        <div class="nombre">Biodegradable</div>
+        <div class="detalle">Bagazo o EarthPact</div>
+      </label>
+      <label class="tarjeta-empaque" onclick="elegirTarjeta(this)">
+        <input type="radio" name="neg_actual" value="mixto">
+        <div class="icono-empaque">🎨</div>
+        <div class="nombre">Mixto</div>
+        <div class="detalle">Varios según producto</div>
+      </label>
+    </div>
+
+    <div style="margin-top:14px">
+      <p style="font-weight:600;margin-bottom:8px">¿A quién le compras?</p>
+      <div class="campo">
+        <select id="neg_proveedor">
+          <option value="">Selecciona (o cuéntanos)</option>
+          <option>Rapid-Pack</option>
+          <option>Seedpack</option>
+          <option>Bioempacol</option>
+          <option>Distribuidor local</option>
+          <option>Tienda o plaza</option>
+          <option>Lo compro por internet</option>
+          <option>Otro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(2)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(3,4)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P5: QUEJAS (LISTA DE CHEQUEO) ========== -->
+<div class="pantalla" id="n-quejas">
+  <div class="progreso">
+    <span>Pregunta <b>4</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:44%"></div></div>
+    <span class="corazon">🔥 3</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">😩 Paso 4 · Las quejas de tus clientes</span>
+    <div class="pregunta">¿Qué te reportan más tus clientes sobre el empaque?</div>
+    <div class="pista">Marca todas las que te suenen conocidas 👇</div>
+
+    <div class="lista-chequeo" id="lista-quejas">
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="roto">
+        <span class="casilla"></span>
+        <span>📦 Empaque roto o abierto al llegar</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="derrames">
+        <span class="casilla"></span>
+        <span>💧 Derrames de salsa o caldo</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="humedo">
+        <span class="casilla"></span>
+        <span>🥵 Comida blanda o sudada</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="sabor">
+        <span class="casilla"></span>
+        <span>👃 Sabor a plástico o icopor</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="presentacion">
+        <span class="casilla"></span>
+        <span>📸 Presentación aburrida o poco atractiva</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="tapa">
+        <span class="casilla"></span>
+        <span>🔓 Tapas que se abren fácil</span>
+      </label>
+      <label class="item-chequeo" onclick="alternarChequeo(this)">
+        <input type="checkbox" name="neg_queja" value="ninguna">
+        <span class="casilla"></span>
+        <span>✅ Casi nunca tengo quejas</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(3)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(4,5)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P6: LEY 2232 ========== -->
+<div class="pantalla" id="n-ley">
+  <div class="progreso">
+    <span>Pregunta <b>5</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:55%"></div></div>
+    <span class="corazon">🔥 4</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">📜 Paso 5 · ¿Y la ley?</span>
+    <div class="pregunta">La <b>Ley 2232 de 2022</b> prohíbe gradualmente el plástico de un solo uso en Colombia. ¿Cómo vas con eso?</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_ley1" value="ya_migre">
+        <span class="icono">✅</span>
+        <span class="texto"><b>Ya migré a biodegradable</b><small>Estoy un paso adelante</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_ley1" value="evaluando">
+        <span class="icono">🔍</span>
+        <span class="texto"><b>Estoy evaluando opciones</b><small>Comparando proveedores</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_ley1" value="interesa">
+        <span class="icono">🤔</span>
+        <span class="texto"><b>Me interesa pero no he empezado</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_ley1" value="ni_idea">
+        <span class="icono">😶</span>
+        <span class="texto"><b>Ni idea de qué hablas</b></span>
+      </label>
+    </div>
+
+    <div style="margin-top:18px">
+      <p style="font-weight:600;margin-bottom:8px">¿Qué tanto te preocupa hoy el tema regulatorio?</p>
+      <div class="termometro">
+        <label><input type="radio" name="neg_ley_preoc" value="1"><div class="barra">Nada</div></label>
+        <label><input type="radio" name="neg_ley_preoc" value="2"><div class="barra">Poco</div></label>
+        <label><input type="radio" name="neg_ley_preoc" value="3"><div class="barra">Algo</div></label>
+        <label><input type="radio" name="neg_ley_preoc" value="4"><div class="barra">Bastante</div></label>
+        <label><input type="radio" name="neg_ley_preoc" value="5"><div class="barra">Urgente</div></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(4)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(5,6)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P7: ATRIBUTOS (BARRAS DESLIZANTES) ========== -->
+<div class="pantalla" id="n-atributos">
+  <div class="progreso">
+    <span>Pregunta <b>6</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:66%"></div></div>
+    <span class="corazon">🔥 5</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🎚️ Paso 6 · Qué pesa más para tu negocio</span>
+    <div class="pregunta">Mueve la barra: ¿cuánto pesa cada atributo en tu decisión de compra?</div>
+    <div class="pista">0 = me da igual · 10 = decisivo</div>
+
+    <div class="envoladura-control">
+      <div class="valor-carrusel" id="d-precio">Precio — <b>5</b> de 10</div>
+      <input type="range" class="carrusel" min="0" max="10" value="5" oninput="actualizarBarra('precio',this.value)">
+    </div>
+
+    <div class="envoladura-control">
+      <div class="valor-carrusel" id="d-funcional">Resistencia a grasa y vapor — <b>5</b> de 10</div>
+      <input type="range" class="carrusel" min="0" max="10" value="5" oninput="actualizarBarra('funcional',this.value)">
+    </div>
+
+    <div class="envoladura-control">
+      <div class="valor-carrusel" id="d-certif">Certificación biodegradable — <b>5</b> de 10</div>
+      <input type="range" class="carrusel" min="0" max="10" value="5" oninput="actualizarBarra('certif',this.value)">
+    </div>
+
+    <div class="envoladura-control">
+      <div class="valor-carrusel" id="d-marca">Personalización con mi marca — <b>5</b> de 10</div>
+      <input type="range" class="carrusel" min="0" max="10" value="5" oninput="actualizarBarra('marca',this.value)">
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(5)">← Volver</button>
+    <button class="boton boton-principal" onclick="ir(7)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P8: ESCENARIO DE DECISIÓN ========== -->
+<div class="pantalla" id="n-decision">
+  <div class="progreso">
+    <span>Pregunta <b>7</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:77%"></div></div>
+    <span class="corazon">🔥 6</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🤝 Paso 7 · El momento de la verdad</span>
+
+    <div class="escenario">
+      <h4>📋 Escenario real</h4>
+      <p>EcoEstructura te ofrece un empaque biodegradable (bagazo de caña o cartón EarthPact), resistente a la grasa, con compartimento para salsas y personalizable con tu marca. <b>Cuesta 20% más que tu icopor actual</b>.</p>
+    </div>
+
+    <div class="pregunta">¿Qué tan probable es que lo adoptes?</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_decision" value="def_si">
+        <span class="icono">🔥</span>
+        <span class="texto"><b>Definitivamente sí</b><small>Lo quiero ya</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_decision" value="prob_si">
+        <span class="icono">🤝</span>
+        <span class="texto"><b>Probablemente sí</b><small>Si el proveedor cumple, sí</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_decision" value="depende">
+        <span class="icono">⚖️</span>
+        <span class="texto"><b>Depende del costo</b><small>Hay que cuadrar números</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_decision" value="prob_no">
+        <span class="icono">🙅</span>
+        <span class="texto"><b>Probablemente no</b><small>Está fuera de mi presupuesto</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_decision" value="def_no">
+        <span class="icono">🚫</span>
+        <span class="texto"><b>Definitivamente no</b><small>No me interesa</small></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(6)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(7,8)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P9: SOBRECARGO + TRASLADO ========== -->
+<div class="pantalla" id="n-pago">
+  <div class="progreso">
+    <span>Pregunta <b>8</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:88%"></div></div>
+    <span class="corazon">🔥 7</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">💸 Paso 8 · El sobrecosto que sí aguantas</span>
+    <div class="pregunta">¿Cuánto más pagarías <span class="resaltado">por empaque</span> frente a tu icopor actual, sin que te duela?</div>
+
+    <div class="termometro">
+      <label><input type="radio" name="neg_pago" value="0"><div class="barra">0%</div></label>
+      <label><input type="radio" name="neg_pago" value="10"><div class="barra">10%</div></label>
+      <label><input type="radio" name="neg_pago" value="20"><div class="barra">20%</div></label>
+      <label><input type="radio" name="neg_pago" value="30"><div class="barra">30%</div></label>
+      <label><input type="radio" name="neg_pago" value="al_cliente"><div class="barra">Lo pasa<br>al cliente</div></label>
+    </div>
+
+    <div style="margin-top:18px">
+      <p style="font-weight:600;margin-bottom:8px">¿Le agregarías un cobro extra al cliente por mejor empaque?</p>
+      <div class="opciones dos">
+        <label class="opcion" onclick="elegirUna(this)">
+          <input type="radio" name="neg_traslado" value="si">
+          <span class="icono">✅</span>
+          <span class="texto"><b>Sí, sin problema</b></span>
+        </label>
+        <label class="opcion" onclick="elegirUna(this)">
+          <input type="radio" name="neg_traslado" value="si_si_se_nota">
+          <span class="icono">🤝</span>
+          <span class="texto"><b>Sí, si el valor se nota</b></span>
+        </label>
+        <label class="opcion" onclick="elegirUna(this)">
+          <input type="radio" name="neg_traslado" value="no">
+          <span class="icono">❌</span>
+          <span class="texto"><b>No, lo absorbe el negocio</b></span>
+        </label>
+        <label class="opcion" onclick="elegirUna(this)">
+          <input type="radio" name="neg_traslado" value="depende">
+          <span class="icono">⚖️</span>
+          <span class="texto"><b>Depende del producto</b></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(7)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(8,9)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== P10: PILOTO + ABIERTA ========== -->
+<div class="pantalla" id="n-final">
+  <div class="progreso">
+    <span>Pregunta <b>9</b> de 9</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:99%"></div></div>
+    <span class="corazon">🔥 8</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🎁 Paso 9 · Piloto y tu voz</span>
+    <div class="pregunta">¿Te animarías a una <span class="resaltado">prueba piloto gratis</span> en tu negocio?</div>
+    <div class="pista">Te mandamos muestra gratis del empaque biodegradable, lo pruebas 2 semanas y nos das tu opinión.</div>
+
+    <div class="opciones dos">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_piloto" value="si">
+        <span class="icono">🚀</span>
+        <span class="texto"><b>¡Sí! Quiero probar</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_piloto" value="tal_vez">
+        <span class="icono">🤔</span>
+        <span class="texto"><b>Tal vez</b><small>Cuéntame más</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_piloto" value="despues">
+        <span class="icono">⏰</span>
+        <span class="texto"><b>Después</b><small>Ahora no puedo</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="neg_piloto" value="no">
+        <span class="icono">🚫</span>
+        <span class="texto"><b>No me interesa</b></span>
+      </label>
+    </div>
+
+    <div style="margin-top:18px">
+      <p style="font-weight:600;margin-bottom:8px">La <b>barrera número 1</b> que te impediría cambiar de proveedor de empaques hoy:</p>
+      <textarea id="neg_barrera" maxlength="300" placeholder="Sé honesto: ¿qué te frena? ¿el precio? ¿la calidad? ¿el tiempo? ¿no sabes dónde comprar?"
+        style="width:100%;min-height:90px;padding:14px;border:2px solid #e0e0e0;border-radius:14px;font-family:inherit;font-size:.95rem;background:#fafafa;resize:vertical"></textarea>
+      <p style="text-align:right;font-size:.78rem;color:var(--suave);margin-top:4px"><span id="contadorN">0</span>/300</p>
+    </div>
+
+    <div class="campo" style="margin-top:14px">
+      <label>Tu contacto para enviarte la muestra piloto 📞</label>
+      <input type="text" id="neg_contacto" placeholder="WhatsApp o Instagram">
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(8)">← Volver</button>
+    <button class="boton boton-principal" onclick="finalizar()">Ver mi diagnóstico 🏅</button>
+  </div>
+</div>
+
+<!-- ========== RESULTADO ========== -->
+<div class="pantalla" id="n-resultado">
+  <div class="tarjeta-resultado">
+    <div class="medalla">🏅</div>
+    <h2>¡Tu diagnóstico está listo!</h2>
+    <div class="puntaje-grande" id="puntajeNegocio">--</div>
+    <div class="nivel-resultado" id="nivelNegocio">Calculando...</div>
+    <p id="descripcionNegocio" style="color:#666;margin-top:10px;font-size:.92rem"></p>
+
+    <ul class="recomendaciones">
+      <h4>📊 Tu perfil en 3 puntos</h4>
+      <li id="recomendacion1"></li>
+      <li id="recomendacion2"></li>
+      <li id="recomendacion3"></li>
+    </ul>
+
+    <p style="margin-top:14px;font-size:.85rem;color:var(--suave)">¿Te interesa la prueba piloto?</p>
+    <button class="boton boton-principal" onclick="enviarResultado()" style="margin-top:8px">📤 Enviar y recibir muestra gratis</button>
+    <button class="boton boton-fantasma" onclick="ir(0)">🔄 Volver a empezar</button>
+
+    <div style="margin-top:18px;background:#fff;border:2px dashed var(--naranja);padding:14px;border-radius:14px;color:#bf360c;font-weight:700">
+      🌶️ EcoEstructura · Proyecto de Producto y Consumidor · UJTL<br>
+      <small style="font-weight:400">Tus datos son anónimos y se usan solo con fines académicos</small>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const pantallas=['inicio','perfil','volumen','empaque','quejas','ley','atributos','decision','pago','final','resultado'];
+let actual=0;
+const barras={precio:5,funcional:5,certif:5,marca:5};
+
+function ir(indice){
+  document.querySelectorAll('.pantalla').forEach(p=>p.classList.remove('activa'));
+  document.getElementById('n-'+pantallas[indice]).classList.add('activa');
+  actual=indice;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function elegirUna(etiqueta){
+  const nombre=etiqueta.querySelector('input').name;
+  document.querySelectorAll(`input[name="${nombre}"]`).forEach(i=>{
+    if(i.closest('.opcion'))i.closest('.opcion').classList.remove('seleccionada');
+  });
+  etiqueta.classList.add('seleccionada');
+  etiqueta.querySelector('input').checked=true;
+}
+
+function elegirTarjeta(tarjeta){
+  document.querySelectorAll('.tarjeta-empaque').forEach(c=>c.classList.remove('seleccionada'));
+  tarjeta.classList.add('seleccionada');
+  tarjeta.querySelector('input').checked=true;
+}
+
+function alternarChequeo(item){
+  const caja=item.querySelector('input');
+  caja.checked=!caja.checked;
+  item.classList.toggle('seleccionada',caja.checked);
+}
+
+function actualizarBarra(nombre,valor){
+  barras[nombre]=parseInt(valor);
+  const etiquetas={precio:'Precio',funcional:'Resistencia a grasa y vapor',certif:'Certificación biodegradable',marca:'Personalización con mi marca'};
+  document.getElementById('d-'+nombre).innerHTML=`${etiquetas[nombre]} — <b>${valor}</b> de 10`;
+}
+
+function validarYSiguiente(actual,siguiente){
+  ir(actual);
+  setTimeout(()=>ir(siguiente),50);
+}
+
+function finalizar(){
+  let puntaje=100;
+  const dec=document.querySelector('input[name="neg_decision"]:checked');
+  if(dec){if(dec.value==='def_si')puntaje+=40;else if(dec.value==='prob_si')puntaje+=25;else if(dec.value==='prob_no')puntaje-=20;}
+  const ley=document.querySelector('input[name="neg_ley1"]:checked');
+  if(ley && ley.value==='ya_migre')puntaje+=20;
+  const pago=document.querySelector('input[name="neg_pago"]:checked');
+  if(pago){const v=pago.value;if(v==='20'||v==='30'||v==='al_cliente')puntaje+=15;}
+  puntaje+=barras.funcional*1.5;
+  puntaje+=barras.certif*1.0;
+
+  document.getElementById('puntajeNegocio').textContent=Math.round(puntaje)+' ECO-PTOS';
+
+  let nivel,descripcion,rec1,rec2,rec3;
+  if(puntaje>=180){
+    nivel='🌿 Líder Verde';
+    descripcion='Tu negocio ya está pensando en el futuro del empaque. Serías un aliado ideal para el piloto.';
+    rec1='Tienes una visión adelantada del cambio regulatorio.';
+    rec2='Valoras más la función y la certificación que solo el precio.';
+    rec3='Estás dispuesto a asumir un sobrecosto si hay valor de marca.';
+  }else if(puntaje>=130){
+    nivel='🥑 Consciente y Pragmático';
+    descripcion='Te importa el planeta, pero tus decisiones siguen pasando por los números. Equilibrio sano.';
+    rec1='Sabes que el cambio viene y te estás preparando.';
+    rec2='Tu principal barrera es el precio o falta de proveedores confiables.';
+    rec3='Un piloto gratuito con descuento de lanzamiento sería tu empujón.';
+  }else if(puntaje>=80){
+    nivel='🍔 Operativo Tradicional';
+    descripcion='Tu foco ahora es producir y vender: el empaque es funcional, no estratégico. Típico del negocio joven.';
+    rec1='Aún no ves el empaque como ventaja competitiva.';
+    rec2='Tu dolor principal son las quejas operativas, no la sostenibilidad.';
+    rec3='Te convencería un piloto que mejore la operación y reduzca quejas.';
+  }else{
+    nivel='🌭 Neutral';
+    descripcion='Aún no has conectado el empaque con tu propuesta de valor. Perfecto: este diagnóstico es tu punto de partida.';
+    rec1='Necesitas ver el caso concreto para decidirte.';
+    rec2='No estás al tanto de la Ley 2232 ni de sus beneficios.';
+    rec3='Un piloto gratis sería el mejor primer paso para ti.';
+  }
+
+  document.getElementById('nivelNegocio').textContent=nivel;
+  document.getElementById('descripcionNegocio').textContent=descripcion;
+  document.getElementById('recomendacion1').textContent=rec1;
+  document.getElementById('recomendacion2').textContent=rec2;
+  document.getElementById('recomendacion3').textContent=rec3;
+
+  ir(10);
+}
+
+function enviarResultado(){
+  const paquete=recolectarNegocio();
+  console.log('📤 EcoEstructura · respuestas del negocio:',paquete);
+  alert('✅ ¡Gracias! Te contactaremos para la prueba piloto.\n\n(Demo: en producción conecta a Google Forms o tu sistema interno)');
+}
+
+function recolectarNegocio(){
+  const salida={tipo:'negocio',edad:document.getElementById('neg_edad').value,nombre:document.getElementById('neg_nombre').value,costo:document.getElementById('neg_costo').value,proveedor:document.getElementById('neg_proveedor').value};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(r=>salida[r.name]=r.value);
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(c=>{
+    salida[c.name]=salida[c.name]?(salida[c.name]+','+c.value):c.value;
+  });
+  salida.barras=barras;
+  salida.barrera=document.getElementById('neg_barrera').value;
+  salida.contacto=document.getElementById('neg_contacto').value;
+  return salida;
+}
+
+// contador de caracteres
+document.getElementById('neg_barrera').addEventListener('input',e=>{
+  document.getElementById('contadorN').textContent=e.target.value.length;
+});
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoEstructura · Duelo de Empaques</title>
+<style>
+  :root{
+    --verde:#2e7d32;
+    --verde-oscuro:#1b5e20;
+    --verde-claro:#e8f5e9;
+    --naranja:#ff7043;
+    --amarillo:#fbc02d;
+    --fondo:#f4faf5;
+    --texto:#1f3a24;
+    --suave:#6b7d70;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(160deg,#e8f5e9 0%,#fffde7 100%);
+    color:var(--texto);
+    min-height:100vh;
+    padding:20px 14px 60px;
+    line-height:1.5;
+  }
+  .contenedor{max-width:720px;margin:0 auto}
+
+  /* ENCABEZADO */
+  .encabezado{
+    background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 60%,#66bb6a 100%);
+    color:#fff;
+    padding:28px 22px;
+    border-radius:22px;
+    margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(27,94,32,.25);
+    position:relative;
+    overflow:hidden;
+  }
+  .encabezado::after{
+    content:"🍔🌱🥡";
+    position:absolute;right:-10px;top:-10px;
+    font-size:5rem;opacity:.15;transform:rotate(15deg);
+  }
+  .encabezado h1{font-size:1.7rem;letter-spacing:-.5px;margin-bottom:6px}
+  .encabezado .subtitulo{font-size:.95rem;opacity:.92;margin-bottom:14px}
+  .insignias{display:flex;gap:8px;flex-wrap:wrap;font-size:.78rem}
+  .insignia{
+    background:rgba(255,255,255,.18);
+    padding:5px 11px;border-radius:99px;
+    border:1px solid rgba(255,255,255,.25);
+  }
+
+  /* PANTALLAS */
+  .pantalla{display:none;animation:aparecer .35s cubic-bezier(.34,1.56,.64,1)}
+  .pantalla.activa{display:block}
+  @keyframes aparecer{
+    from{opacity:0;transform:translateY(12px) scale(.98)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+
+  /* TARJETA INICIO */
+  .tarjeta-inicio{
+    background:#fff;
+    padding:30px 24px;
+    border-radius:22px;
+    text-align:center;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+  }
+  .emoji-grande{font-size:4rem;margin-bottom:8px;animation:rebotar 2s infinite}
+  @keyframes rebotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .tarjeta-inicio h2{color:var(--verde-oscuro);font-size:1.4rem;margin-bottom:8px}
+  .tarjeta-inicio p{color:var(--suave);margin-bottom:18px}
+  .tarjeta-inicio ul{text-align:left;list-style:none;margin:18px 0}
+  .tarjeta-inicio li{padding:7px 0;color:#445;display:flex;align-items:center;gap:10px}
+  .tarjeta-inicio li::before{content:"⚡";color:var(--naranja);font-size:1.1rem}
+
+  .boton{
+    border:none;border-radius:99px;
+    padding:14px 26px;
+    font-size:1rem;font-weight:700;
+    cursor:pointer;
+    transition:all .2s;
+    font-family:inherit;
+  }
+  .boton-principal{
+    background:linear-gradient(135deg,var(--verde),var(--verde-oscuro));
+    color:#fff;
+    box-shadow:0 6px 16px rgba(46,125,50,.35);
+  }
+  .boton-principal:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(46,125,50,.45)}
+  .boton-fantasma{
+    background:transparent;color:var(--verde);
+    border:2px solid var(--verde);
+    margin-top:10px;
+  }
+  .boton-fantasma:hover{background:var(--verde-claro)}
+
+  /* PROGRESO */
+  .progreso{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:14px;font-size:.82rem;color:var(--suave);
+  }
+  .barra-progreso{
+    flex:1;height:8px;background:#e0e0e0;border-radius:99px;overflow:hidden;
+  }
+  .barra-relleno{
+    height:100%;
+    background:linear-gradient(90deg,var(--verde),#66bb6a);
+    border-radius:99px;
+    transition:width .4s ease;
+  }
+  .racha{font-weight:700;color:var(--naranja)}
+
+  /* TARJETA PREGUNTA */
+  .tarjeta{
+    background:#fff;
+    padding:24px 22px;
+    border-radius:22px;
+    box-shadow:0 6px 20px rgba(0,0,0,.06);
+    border:2px solid transparent;
+  }
+  .etiqueta-paso{
+    display:inline-block;
+    background:var(--verde-claro);
+    color:var(--verde-oscuro);
+    padding:3px 11px;border-radius:99px;
+    font-size:.7rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px;
+    margin-bottom:10px;
+  }
+  .pregunta{font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#263326}
+  .pregunta .resaltado{color:var(--naranja)}
+  .pista{font-size:.85rem;color:var(--suave);margin-bottom:18px;font-style:italic}
+
+  /* CAMPOS */
+  .campo{margin-bottom:14px}
+  .campo label{display:block;font-size:.82rem;font-weight:600;color:#445;margin-bottom:5px}
+  .campo input,.campo select{
+    width:100%;padding:11px 14px;
+    border:2px solid #e0e0e0;border-radius:12px;
+    font-size:.95rem;font-family:inherit;
+    background:#fafafa;transition:.15s;
+  }
+  .campo input:focus,.campo select:focus{
+    outline:none;border-color:var(--verde);background:#fff;
+  }
+
+  /* OPCIONES */
+  .opciones{display:grid;gap:9px}
+  .opciones.dos{grid-template-columns:1fr 1fr}
+  .opcion{
+    display:flex;align-items:center;gap:11px;
+    padding:13px 14px;
+    border:2px solid #ececec;
+    border-radius:14px;
+    cursor:pointer;
+    background:#fff;
+    transition:all .15s;
+    font-size:.93rem;
+  }
+  .opcion:hover{border-color:var(--verde);background:var(--verde-claro);transform:translateX(2px)}
+  .opcion.seleccionada{
+    border-color:var(--verde);
+    background:var(--verde-claro);
+    box-shadow:0 4px 12px rgba(46,125,50,.18);
+  }
+  .opcion input{display:none}
+  .opcion .icono{font-size:1.3rem;min-width:30px;text-align:center}
+  .opcion .texto{flex:1}
+  .opcion .texto b{display:block;color:#263326;margin-bottom:1px}
+  .opcion .texto small{color:var(--suave);font-size:.78rem}
+
+  /* ESCALA DE CARITAS */
+  .escala-caritas{
+    display:flex;justify-content:space-between;gap:6px;margin:14px 0;
+  }
+  .escala-caritas label{
+    flex:1;text-align:center;cursor:pointer;
+  }
+  .escala-caritas input{display:none}
+  .escala-caritas .boton-carita{
+    display:flex;flex-direction:column;align-items:center;
+    padding:10px 4px;
+    border:2px solid #ececec;
+    border-radius:14px;
+    background:#fff;
+    transition:all .15s;
+  }
+  .escala-caritas .boton-carita .cara{font-size:1.6rem;margin-bottom:3px;filter:grayscale(.4)}
+  .escala-caritas .boton-carita .etiqueta{font-size:.7rem;color:var(--suave);font-weight:600}
+  .escala-caritas label:hover .boton-carita{border-color:var(--verde);transform:scale(1.05)}
+  .escala-caritas label input:checked + .boton-carita{
+    border-color:var(--verde);
+    background:var(--verde-claro);
+    box-shadow:0 4px 12px rgba(46,125,50,.2);
+    transform:scale(1.08);
+  }
+  .escala-caritas label input:checked + .boton-carita .cara{filter:none}
+  .escala-caritas label input:checked + .boton-carita .etiqueta{color:var(--verde-oscuro)}
+
+  /* TARJETAS DE DESLIZAMIENTO */
+  .tarjeta-deslizar{
+    background:linear-gradient(135deg,#fff 0%,#fafafa 100%);
+    border:2px solid #ececec;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:14px;
+    text-align:center;
+  }
+  .tarjeta-deslizar .empaque-emoji{font-size:3.5rem;margin-bottom:6px}
+  .tarjeta-deslizar h3{font-size:1.1rem;margin-bottom:4px}
+  .tarjeta-deslizar p{color:var(--suave);font-size:.85rem;margin-bottom:12px}
+  .acciones-deslizar{display:flex;gap:8px;justify-content:center}
+  .boton-deslizar{
+    flex:1;max-width:140px;
+    padding:10px 14px;
+    border:2px solid;border-radius:99px;
+    font-weight:700;cursor:pointer;
+    background:#fff;transition:.15s;
+    font-family:inherit;font-size:.9rem;
+  }
+  .boton-deslizar.no{border-color:#e57373;color:#c62828}
+  .boton-deslizar.quiza{border-color:var(--amarillo);color:#f57f17}
+  .boton-deslizar.si{border-color:var(--verde);color:var(--verde)}
+  .boton-deslizar:hover{transform:scale(1.05)}
+
+  /* ARRASTRAR Y ORDENAR */
+  .lista-ordenar{list-style:none}
+  .item-ordenar{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px;
+    background:#fff;
+    border:2px solid #ececec;
+    border-radius:12px;
+    margin-bottom:8px;
+    cursor:grab;
+    transition:.15s;
+  }
+  .item-ordenar:active{cursor:grabbing}
+  .item-ordenar.arrastrando{opacity:.4;transform:scale(.98)}
+  .item-ordenar .agarre{color:#bbb;font-size:1.2rem;cursor:grab}
+  .item-ordenar .icono{font-size:1.3rem}
+  .item-ordenar .etiqueta{flex:1;font-size:.93rem}
+  .item-ordenar .posicion{
+    background:var(--verde-claro);color:var(--verde-oscuro);
+    padding:3px 9px;border-radius:99px;
+    font-size:.75rem;font-weight:700;
+  }
+
+  /* NAVEGACIÓN */
+  .navegacion{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+  .navegacion .boton{padding:11px 22px;font-size:.92rem}
+
+  /* RESULTADO */
+  .tarjeta-resultado{
+    background:linear-gradient(135deg,#fff 0%,#f1f8e9 100%);
+    padding:28px 22px;
+    border-radius:22px;
+    text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    border:2px solid var(--verde-claro);
+  }
+  .trofeo{font-size:4rem;animation:mover 1.5s infinite}
+  @keyframes mover{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+  .tarjeta-resultado h2{color:var(--verde-oscuro);margin:8px 0;font-size:1.5rem}
+  .tarjeta-resultado .puntaje{
+    font-size:3rem;font-weight:800;
+    background:linear-gradient(135deg,var(--verde),var(--naranja));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .tarjeta-resultado .nivel{
+    display:inline-block;
+    background:var(--naranja);color:#fff;
+    padding:6px 16px;border-radius:99px;
+    font-weight:700;font-size:.9rem;margin:10px 0;
+  }
+  .tarjeta-resultado .descripcion{color:#445;margin:12px 0;font-size:.95rem}
+  .lista-recompensas{
+    background:#fff;
+    padding:14px;border-radius:14px;
+    margin-top:14px;text-align:left;
+  }
+  .lista-recompensas li{list-style:none;padding:6px 0;color:#445;font-size:.88rem}
+  .lista-recompensas li::before{content:"🎁 ";margin-right:6px}
+
+  .caja-compartir{
+    margin-top:18px;
+    background:#fff;border:2px dashed var(--verde);
+    padding:14px;border-radius:14px;
+    color:var(--verde-oscuro);
+    font-weight:700;
+  }
+
+  @media(max-width:540px){
+    .encabezado{padding:22px 18px}
+    .encabezado h1{font-size:1.4rem}
+    .tarjeta{padding:20px 16px}
+    .opciones.dos{grid-template-columns:1fr}
+    .escala-caritas .boton-carita .cara{font-size:1.3rem}
+    .escala-caritas .boton-carita .etiqueta{font-size:.62rem}
+  }
+</style>
+</head>
+<body>
+<div class="contenedor">
+
+<!-- ENCABEZADO -->
+<div class="encabezado">
+  <h1>🍔 Duelo de Empaques ⚡</h1>
+  <p class="subtitulo">Una encuesta diferente. Sin formularios aburridos. Tú decides.</p>
+  <div class="insignias">
+    <span class="insignia">⏱️ 4 minutos</span>
+    <span class="insignia">🎯 De 18 a 23 años</span>
+    <span class="insignia">🎮 10 retos</span>
+    <span class="insignia">🏆 Gana puntos</span>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 1: INICIO ========== -->
+<div class="pantalla activa" id="c-inicio">
+  <div class="tarjeta-inicio">
+    <div class="emoji-grande">🌯➡️🥡</div>
+    <h2>¿Alguna vez tu pedido llegó hecho un desastre?</h2>
+    <p>Sudado, aplastado, con salsa por fuera… Tranqui, no eres exagerado. Queremos entender qué onda con los empaques de la comida para llevar y qué mejorarías.</p>
+    <ul>
+      <li>10 mini-retos rápidos y visuales</li>
+      <li>Sin preguntas largas ni enredos</li>
+      <li>Tus respuestas se usan solo para el proyecto EcoEstructura</li>
+      <li>Si terminas, te llevas una insignia única 🏅</li>
+    </ul>
+    <button class="boton boton-principal" onclick="ir(1)">⚡ Empezar el reto</button>
+    <p style="margin-top:14px;font-size:.78rem;color:var(--suave)">EcoEstructura · Proyecto de Producto y Consumidor · UJTL</p>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 2: PERFIL ========== -->
+<div class="pantalla" id="c-perfil">
+  <div class="progreso">
+    <span>Reto <b>1</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:10%"></div></div>
+    <span class="racha">🔥 0</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🪪 Paso 1 · Cuéntate en 10 segundos</span>
+    <div class="pregunta">Primero lo básico, lo necesitamos para saber a quién le estamos hablando 🎯</div>
+
+    <div class="campo">
+      <label>¿Cuántos años tienes?</label>
+      <select id="pre_edad">
+        <option value="">Elige tu edad</option>
+        <option>18 años</option>
+        <option>19 años</option>
+        <option>20 años</option>
+        <option>21 años</option>
+        <option>22 años</option>
+        <option>23 años</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label>¿A qué te dedicas principalmente?</label>
+      <select id="pre_ocupacion">
+        <option value="">Selecciona</option>
+        <option>🎓 Estudio pregrado</option>
+        <option>📚 Estudio posgrado</option>
+        <option>💼 Trabajo formal</option>
+        <option>🧑‍💻 Trabajo independiente o emprendimiento propio</option>
+        <option>🤹 Combino estudio y trabajo</option>
+        <option>🌴 Otro</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label>¿Dónde vives ahora?</label>
+      <select id="pre_zona">
+        <option value="">Selecciona</option>
+        <option>🏙️ Bogotá - Centro / Chapinero</option>
+        <option>🏙️ Bogotá - Norte (Usaquén, Suba)</option>
+        <option>🏙️ Bogotá - Sur (Kennedy, Bosa, Ciudad Bolívar)</option>
+        <option>🏙️ Bogotá - Occidente / Suroccidente</option>
+        <option>🌆 Otra ciudad</option>
+        <option>🌎 Municipio o pueblo</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(0)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(1,2)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 3: FRECUENCIA ========== -->
+<div class="pantalla" id="c-frecuencia">
+  <div class="progreso">
+    <span>Reto <b>2</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:20%"></div></div>
+    <span class="racha">🔥 1</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🍟 Paso 2 · Tu vida con la comida de calle</span>
+    <div class="pregunta">¿Cada cuánto comes comida para llevar o pides domicilio?</div>
+    <div class="pista">No hay respuesta buena ni mala, solo tu realidad 🫶</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_frecuencia" value="diario">
+        <span class="icono">📅📅📅📅📅</span>
+        <span class="texto"><b>Todos los días</b><small>Eres de los que piden a domicilio 24/7</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_frecuencia" value="3-4">
+        <span class="icono">📅📅📅📅</span>
+        <span class="texto"><b>3 a 4 veces por semana</b><small>Ritmo fuerte</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_frecuencia" value="1-2">
+        <span class="icono">📅📅</span>
+        <span class="texto"><b>1 a 2 veces por semana</b><small>Lo justo</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_frecuencia" value="ocasional">
+        <span class="icono">📅</span>
+        <span class="texto"><b>Ocasional</b><small>Solo cuando hay antojo</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_frecuencia" value="casi_nunca">
+        <span class="icono">🚫</span>
+        <span class="texto"><b>Casi nunca</b><small>Cocino o como en el sitio</small></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(1)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(2,3)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 4: FAVORITOS ========== -->
+<div class="pantalla" id="c-favoritos">
+  <div class="progreso">
+    <span>Reto <b>3</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:30%"></div></div>
+    <span class="racha">🔥 2</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🌮 Paso 3 · Tus 3 favoritas (elige 3)</span>
+    <div class="pregunta">¿Qué comida callejera o para llevar <span class="resaltado">más pides</span>?</div>
+    <div class="pista">Toca las 3 que más ordenas. <span style="color:var(--naranja)">Selecciona 3</span></div>
+
+    <div class="opciones dos" id="cuadricula-fav">
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="empanadas">
+        <span class="icono">🥟</span>
+        <span class="texto"><b>Empanadas</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="hamburguesas">
+        <span class="icono">🍔</span>
+        <span class="texto"><b>Hamburguesas</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="arepas">
+        <span class="icono">🫓</span>
+        <span class="texto"><b>Arepas rellenas</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="pizza">
+        <span class="icono">🍕</span>
+        <span class="texto"><b>Pizza</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="pollo">
+        <span class="icono">🍗</span>
+        <span class="texto"><b>Pollo asado</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="tacos">
+        <span class="icono">🌮</span>
+        <span class="texto"><b>Tacos / Mexicana</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="sushi">
+        <span class="icono">🍣</span>
+        <span class="texto"><b>Sushi</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="saludable">
+        <span class="icono">🥗</span>
+        <span class="texto"><b>Bowls / Comida saludable</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="tradicional">
+        <span class="icono">🍲</span>
+        <span class="texto"><b>Comida tradicional</b></span>
+      </label>
+      <label class="opcion" data-grupo="fav" onclick="elegirVarias(this,'fav',3)">
+        <input type="checkbox" value="perros">
+        <span class="icono">🌭</span>
+        <span class="texto"><b>Perros calientes</b></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(2)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(3,4)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 5: FRICCIONES (CARITAS) ========== -->
+<div class="pantalla" id="c-fricciones">
+  <div class="progreso">
+    <span>Reto <b>4</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:40%"></div></div>
+    <span class="racha">🔥 3</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">😩 Paso 4 · Tus peores momentos con los empaques</span>
+    <div class="pregunta">¿Qué tan seguido te pasa esto con el empaque?</div>
+    <div class="pista">Toca la carita que mejor describa qué tan seguido te pasa</div>
+
+    <div style="margin:18px 0">
+      <p style="font-weight:600;margin-bottom:8px">a) La caja llega toda grasosa y arrugada</p>
+      <div class="escala-caritas">
+        <label><input type="radio" name="pre_f1" value="1"><div class="boton-carita"><span class="cara">😊</span><span class="etiqueta">Nunca</span></div></label>
+        <label><input type="radio" name="pre_f1" value="2"><div class="boton-carita"><span class="cara">🙂</span><span class="etiqueta">Poco</span></div></label>
+        <label><input type="radio" name="pre_f1" value="3"><div class="boton-carita"><span class="cara">😐</span><span class="etiqueta">A veces</span></div></label>
+        <label><input type="radio" name="pre_f1" value="4"><div class="boton-carita"><span class="cara">😣</span><span class="etiqueta">Seguido</span></div></label>
+        <label><input type="radio" name="pre_f1" value="5"><div class="boton-carita"><span class="cara">🤮</span><span class="etiqueta">Siempre</span></div></label>
+      </div>
+    </div>
+
+    <div style="margin:18px 0">
+      <p style="font-weight:600;margin-bottom:8px">b) La comida llega blanda, sin crocancia (por el vapor)</p>
+      <div class="escala-caritas">
+        <label><input type="radio" name="pre_f2" value="1"><div class="boton-carita"><span class="cara">😊</span><span class="etiqueta">Nunca</span></div></label>
+        <label><input type="radio" name="pre_f2" value="2"><div class="boton-carita"><span class="cara">🙂</span><span class="etiqueta">Poco</span></div></label>
+        <label><input type="radio" name="pre_f2" value="3"><div class="boton-carita"><span class="cara">😐</span><span class="etiqueta">A veces</span></div></label>
+        <label><input type="radio" name="pre_f2" value="4"><div class="boton-carita"><span class="cara">😣</span><span class="etiqueta">Seguido</span></div></label>
+        <label><input type="radio" name="pre_f2" value="5"><div class="boton-carita"><span class="cara">🤮</span><span class="etiqueta">Siempre</span></div></label>
+      </div>
+    </div>
+
+    <div style="margin:18px 0">
+      <p style="font-weight:600;margin-bottom:8px">c) Se derrama la salsa o el caldo en la bolsa o en la mochila</p>
+      <div class="escala-caritas">
+        <label><input type="radio" name="pre_f3" value="1"><div class="boton-carita"><span class="cara">😊</span><span class="etiqueta">Nunca</span></div></label>
+        <label><input type="radio" name="pre_f3" value="2"><div class="boton-carita"><span class="cara">🙂</span><span class="etiqueta">Poco</span></div></label>
+        <label><input type="radio" name="pre_f3" value="3"><div class="boton-carita"><span class="cara">😐</span><span class="etiqueta">A veces</span></div></label>
+        <label><input type="radio" name="pre_f3" value="4"><div class="boton-carita"><span class="cara">😣</span><span class="etiqueta">Seguido</span></div></label>
+        <label><input type="radio" name="pre_f3" value="5"><div class="boton-carita"><span class="cara">🤮</span><span class="etiqueta">Siempre</span></div></label>
+      </div>
+    </div>
+
+    <div style="margin:18px 0">
+      <p style="font-weight:600;margin-bottom:8px">d) La tapa se abre sola o queda mal sellada</p>
+      <div class="escala-caritas">
+        <label><input type="radio" name="pre_f4" value="1"><div class="boton-carita"><span class="cara">😊</span><span class="etiqueta">Nunca</span></div></label>
+        <label><input type="radio" name="pre_f4" value="2"><div class="boton-carita"><span class="cara">🙂</span><span class="etiqueta">Poco</span></div></label>
+        <label><input type="radio" name="pre_f4" value="3"><div class="boton-carita"><span class="cara">😐</span><span class="etiqueta">A veces</span></div></label>
+        <label><input type="radio" name="pre_f4" value="4"><div class="boton-carita"><span class="cara">😣</span><span class="etiqueta">Seguido</span></div></label>
+        <label><input type="radio" name="pre_f4" value="5"><div class="boton-carita"><span class="cara">🤮</span><span class="etiqueta">Siempre</span></div></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(3)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(4,5)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 6: DESLIZAR (3 EMPAQUES) ========== -->
+<div class="pantalla" id="c-deslizar">
+  <div class="progreso">
+    <span>Reto <b>5</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:50%"></div></div>
+    <span class="racha">🔥 4</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">💚 Paso 5 · Elige los empaques</span>
+    <div class="pregunta">¿Cuál de estos empaques te <span class="resaltado">llamaría más la atención</span> en tu próxima entrega?</div>
+    <div class="pista">Toca una opción por cada empaque. Sé honesto 👀</div>
+
+    <div class="tarjeta-deslizar">
+      <div class="empaque-emoji">🥡</div>
+      <h3>Empaque A · Icopor genérico</h3>
+      <p>El clásico: barato y ligero, pero se mancha y nadie sabe dónde va a parar.</p>
+      <div class="acciones-deslizar">
+        <button class="boton-deslizar no" type="button" onclick="elegirEmpaque(this,'A','no')">👎 Ni loco</button>
+        <button class="boton-deslizar quiza" type="button" onclick="elegirEmpaque(this,'A','meh')">😐 Más o menos</button>
+        <button class="boton-deslizar si" type="button" onclick="elegirEmpaque(this,'A','si')">😍 Me encanta</button>
+      </div>
+    </div>
+
+    <div class="tarjeta-deslizar">
+      <div class="empaque-emoji">🌿</div>
+      <h3>Empaque B · Bagazo de caña biodegradable</h3>
+      <p>Resistente a la grasa, con cierre firme y se composta en 90 días.</p>
+      <div class="acciones-deslizar">
+        <button class="boton-deslizar no" type="button" onclick="elegirEmpaque(this,'B','no')">👎 Ni loco</button>
+        <button class="boton-deslizar quiza" type="button" onclick="elegirEmpaque(this,'B','meh')">😐 Más o menos</button>
+        <button class="boton-deslizar si" type="button" onclick="elegirEmpaque(this,'B','si')">😍 Me encanta</button>
+      </div>
+    </div>
+
+    <div class="tarjeta-deslizar">
+      <div class="empaque-emoji">🍱</div>
+      <h3>Empaque C · Cartón EarthPact con compartimento para salsa</h3>
+      <p>Diseño limpio, con división para que la salsa no toque la comida.</p>
+      <div class="acciones-deslizar">
+        <button class="boton-deslizar no" type="button" onclick="elegirEmpaque(this,'C','no')">👎 Ni loco</button>
+        <button class="boton-deslizar quiza" type="button" onclick="elegirEmpaque(this,'C','meh')">😐 Más o menos</button>
+        <button class="boton-deslizar si" type="button" onclick="elegirEmpaque(this,'C','si')">😍 Me encanta</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(4)">← Volver</button>
+    <button class="boton boton-principal" onclick="ir(6)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 7: ATRIBUTOS (ARRASTRAR) ========== -->
+<div class="pantalla" id="c-ordenar">
+  <div class="progreso">
+    <span>Reto <b>6</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:60%"></div></div>
+    <span class="racha">🔥 5</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🏆 Paso 6 · Ordénalos en tu podio</span>
+    <div class="pregunta">Ordena del <span class="resaltado">más importante (#1)</span> al <span class="resaltado">menos</span> para ti:</div>
+    <div class="pista">Arrastra los elementos o usa el mouse</div>
+
+    <ul class="lista-ordenar" id="lista-ordenar">
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🛡️</span>
+        <span class="etiqueta">Que NO se filtre ni manche</span>
+        <span class="posicion">#1</span>
+      </li>
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🥵</span>
+        <span class="etiqueta">Mantener temperatura y crocancia</span>
+        <span class="posicion">#2</span>
+      </li>
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🥣</span>
+        <span class="etiqueta">Compartimento separado para salsas</span>
+        <span class="posicion">#3</span>
+      </li>
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🌱</span>
+        <span class="etiqueta">Que sea biodegradable y compostable</span>
+        <span class="posicion">#4</span>
+      </li>
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🎨</span>
+        <span class="etiqueta">Que se vea bonito y se pueda compartir en redes</span>
+        <span class="posicion">#5</span>
+      </li>
+      <li class="item-ordenar" draggable="true">
+        <span class="agarre">≡</span>
+        <span class="icono">🏷️</span>
+        <span class="etiqueta">Que tenga la marca del restaurante</span>
+        <span class="posicion">#6</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(5)">← Volver</button>
+    <button class="boton boton-principal" onclick="ir(7)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 8: DISPOSICIÓN DE PAGO ========== -->
+<div class="pantalla" id="c-pago">
+  <div class="progreso">
+    <span>Reto <b>7</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:70%"></div></div>
+    <span class="racha">🔥 6</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">💸 Paso 7 · Cuánto pagarías de más</span>
+    <div class="pregunta">Si tu pedido vale <b>$25.000 COP</b>, ¿cuánto extra pondrías para que venga en un empaque biodegradable que sí funcione (sin grasa, sin derrames, con compartimento)?</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_pago" value="0">
+        <span class="icono">🚫</span>
+        <span class="texto"><b>$0 COP</b><small>Ya estoy pagando suficiente, gracias</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_pago" value="500">
+        <span class="icono">💵</span>
+        <span class="texto"><b>Entre $500 y $1.000</b><small>Algo simbólico, lo justo</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_pago" value="1500">
+        <span class="icono">💵💵</span>
+        <span class="texto"><b>Entre $1.000 y $2.000</b><small>Me parece razonable</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_pago" value="2500">
+        <span class="icono">💵💵💵</span>
+        <span class="texto"><b>Entre $2.000 y $3.000</b><small>Si la calidad se nota, vale</small></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_pago" value="3000+">
+        <span class="icono">💸</span>
+        <span class="texto"><b>Más de $3.000</b><small>Si es buen empaque, sí pago más</small></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(6)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(7,8)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 9: LEY 2232 ========== -->
+<div class="pantalla" id="c-ley">
+  <div class="progreso">
+    <span>Reto <b>8</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:80%"></div></div>
+    <span class="racha">🔥 7</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">📜 Paso 8 · ¿Te suena esto?</span>
+    <div class="pregunta">En 2022 Colombia sacó la <b>Ley 2232</b> que prohíbe gradualmente el plástico de un solo uso. ¿Sabías?</div>
+
+    <div class="opciones">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_ley" value="si">
+        <span class="icono">📰</span>
+        <span class="texto"><b>Sí, me suena / la he visto en redes</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_ley" value="maso">
+        <span class="icono">🤔</span>
+        <span class="texto"><b>Me suena vagamente</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_ley" value="no">
+        <span class="icono">😶</span>
+        <span class="texto"><b>Ni idea, primera vez que lo escucho</b></span>
+      </label>
+    </div>
+
+    <div style="margin-top:18px">
+      <p style="font-weight:600;margin-bottom:8px">Después de saberlo, ¿qué tan importante es para ti que los restaurantes ya estén usando empaques biodegradables?</p>
+      <div class="escala-caritas">
+        <label><input type="radio" name="pre_ley_imp" value="1"><div class="boton-carita"><span class="cara">🤷</span><span class="etiqueta">Me da igual</span></div></label>
+        <label><input type="radio" name="pre_ley_imp" value="2"><div class="boton-carita"><span class="cara">🙂</span><span class="etiqueta">Algo</span></div></label>
+        <label><input type="radio" name="pre_ley_imp" value="3"><div class="boton-carita"><span class="cara">😌</span><span class="etiqueta">Bastante</span></div></label>
+        <label><input type="radio" name="pre_ley_imp" value="4"><div class="boton-carita"><span class="cara">💚</span><span class="etiqueta">Mucho</span></div></label>
+        <label><input type="radio" name="pre_ley_imp" value="5"><div class="boton-carita"><span class="cara">🌍</span><span class="etiqueta">Vital</span></div></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(7)">← Volver</button>
+    <button class="boton boton-principal" onclick="validarYSiguiente(8,9)">Siguiente ⚡</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA 10: ABIERTA CREATIVA ========== -->
+<div class="pantalla" id="c-abierta">
+  <div class="progreso">
+    <span>Reto <b>9</b> de 10</span>
+    <div class="barra-progreso"><div class="barra-relleno" style="width:90%"></div></div>
+    <span class="racha">🔥 8</span>
+  </div>
+
+  <div class="tarjeta">
+    <span class="etiqueta-paso">🎤 Paso 9 · Tu voz cuenta</span>
+    <div class="pregunta">Cuéntanos en una frase: <span class="resaltado">la peor experiencia</span> que has tenido con un empaque de comida para llevar</div>
+    <div class="pista">Piénsalo como si fuera la historia que sí o sí subirías a Instagram 📱</div>
+    <textarea id="pre_peor" maxlength="280" placeholder="Ejemplo: 'Pedí empanadas y llegaron convertidas en una sopa de empanada…'"
+      style="width:100%;min-height:90px;padding:14px;border:2px solid #e0e0e0;border-radius:14px;font-family:inherit;font-size:.95rem;background:#fafafa;resize:vertical"></textarea>
+    <p style="text-align:right;font-size:.78rem;color:var(--suave);margin-top:4px"><span id="contador">0</span>/280</p>
+  </div>
+
+  <div class="tarjeta" style="margin-top:14px">
+    <span class="etiqueta-paso">💡 Paso 10 · Elige tu favorito</span>
+    <div class="pregunta">Si pudieras agregar UNA sola cosa al empaque perfecto, ¿cuál sería?</div>
+
+    <div class="opciones dos">
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="salsas">
+        <span class="icono">🥣</span>
+        <span class="texto"><b>Compartimento para salsas</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="rigido">
+        <span class="icono">🛡️</span>
+        <span class="texto"><b>Más rígido y resistente</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="ventana">
+        <span class="icono">👀</span>
+        <span class="texto"><b>Ventana para ver la comida</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="qr">
+        <span class="icono">📱</span>
+        <span class="texto"><b>Código QR del menú o descuentos</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="diseno">
+        <span class="icono">🎨</span>
+        <span class="texto"><b>Diseño bonito para publicar</b></span>
+      </label>
+      <label class="opcion" onclick="elegirUna(this)">
+        <input type="radio" name="pre_una" value="ecologico">
+        <span class="icono">🌱</span>
+        <span class="texto"><b>100 % compostable</b></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="navegacion">
+    <button class="boton boton-fantasma" onclick="ir(8)">← Volver</button>
+    <button class="boton boton-principal" onclick="finalizar()">Ver mi resultado 🏆</button>
+  </div>
+</div>
+
+<!-- ========== PANTALLA FINAL: RESULTADO ========== -->
+<div class="pantalla" id="c-resultado">
+  <div class="tarjeta-resultado">
+    <div class="trofeo">🏆</div>
+    <h2>¡Lograste el reto!</h2>
+    <div class="puntaje" id="puntaje-final">--</div>
+    <div class="nivel" id="etiqueta-nivel">Calculando...</div>
+    <p class="descripcion" id="descripcion-nivel"></p>
+
+    <ul class="lista-recompensas">
+      <li>Ganaste la insignia <b>"Detective de Empaques" 🍔🔍</b></li>
+      <li>Tus respuestas ayudan a diseñar empaques biodegradables más chéveres</li>
+      <li>Si quieres, te contactamos para una mini-entrevista de 15 minutos 🎁</li>
+    </ul>
+
+    <p style="margin-top:16px;font-size:.85rem;color:var(--suave)">¿Quieres participar en la entrevista?</p>
+    <div class="campo" style="text-align:left;margin-top:8px">
+      <input type="text" id="pre_contacto" placeholder="Déjanos tu Instagram o WhatsApp (opcional)">
+    </div>
+    <button class="boton boton-principal" onclick="enviarResultado()" style="margin-top:10px">📤 Enviar mi participación</button>
+    <button class="boton boton-fantasma" onclick="ir(0)">🔄 Volver a empezar</button>
+
+    <div class="caja-compartir">
+      🌱 EcoEstructura · Proyecto de Producto y Consumidor · UJTL<br>
+      <small style="font-weight:400">Tus datos son anónimos y se usan solo con fines académicos</small>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const pantallas = ['inicio','perfil','frecuencia','favoritos','fricciones','deslizar','ordenar','pago','ley','abierta','resultado'];
+let actual = 0;
+const datos = {empaques:{},varios:{}};
+
+function ir(indice){
+  document.querySelectorAll('.pantalla').forEach(p=>p.classList.remove('activa'));
+  document.getElementById('c-'+pantallas[indice]).classList.add('activa');
+  actual = indice;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function elegirUna(etiqueta){
+  const nombre = etiqueta.querySelector('input').name;
+  document.querySelectorAll(`input[name="${nombre}"]`).forEach(i=>{
+    if(i.closest('.opcion')) i.closest('.opcion').classList.remove('seleccionada');
+  });
+  etiqueta.classList.add('seleccionada');
+  etiqueta.querySelector('input').checked = true;
+}
+
+function elegirVarias(etiqueta,grupo,maximo){
+  const caja = etiqueta.querySelector('input[type="checkbox"]');
+  const elementos = document.querySelectorAll(`[data-grupo="${grupo}"]`);
+  let seleccionadas = Array.from(elementos).filter(el=>el.querySelector('input').checked);
+  if(caja.checked && seleccionadas.length>maximo){
+    caja.checked = false;
+    console.log(`💡 Solo puedes elegir ${maximo} opciones`);
+    return;
+  }
+  etiqueta.classList.toggle('seleccionada',caja.checked);
+}
+
+function elegirEmpaque(boton,empaque,veredicto){
+  const tarjeta = boton.closest('.tarjeta-deslizar');
+  tarjeta.querySelectorAll('.boton-deslizar').forEach(b=>{
+    b.style.opacity='.5';
+    b.style.transform='scale(.95)';
+  });
+  boton.style.opacity='1';
+  boton.style.transform='scale(1.1)';
+  boton.style.boxShadow='0 4px 12px rgba(0,0,0,.18)';
+  datos.empaques[empaque]=veredicto;
+  setTimeout(()=>{
+    tarjeta.style.transition='all .3s';
+    tarjeta.style.transform='translateX(40px)';
+    tarjeta.style.opacity='.5';
+  },350);
+}
+
+function validarYSiguiente(actual,siguiente){
+  ir(actual);
+  setTimeout(()=>ir(siguiente),50);
+}
+
+function finalizar(){
+  let puntaje = 100;
+  let eco = 0;
+  if(datos.empaques.B==='si' || datos.empaques.C==='si') eco+=30;
+  if(datos.empaques.A==='no') eco+=20;
+
+  const pago = document.querySelector('input[name="pre_pago"]:checked');
+  if(pago){
+    const v = pago.value;
+    if(v==='1500') puntaje+=15;
+    if(v==='2500' || v==='3000+') puntaje+=25;
+  }
+
+  const ley = document.querySelector('input[name="pre_ley_imp"]:checked');
+  if(ley && parseInt(ley.value)>=4) puntaje+=15;
+
+  const una = document.querySelector('input[name="pre_una"]:checked');
+  if(una && (una.value==='ecologico'||una.value==='rigido')) eco+=20;
+
+  document.getElementById('puntaje-final').textContent = puntaje + ' ECO-PTOS';
+
+  let nivel,descripcion;
+  if(puntaje>=140){nivel='🌿 Embajador Verde';descripcion='Wow, eres un crack consciente. Tu voz pesa muchísimo para el proyecto.';}
+  else if(puntaje>=110){nivel='🥑 Consumidor Consciente';descripcion='Te importa el planeta y el buen comer. Gran combinación.';}
+  else if(puntaje>=80){nivel='🍔 Comensal Pragmático';descripcion='Primero el sabor, después el planeta, pero te importa.';}
+  else{nivel='🌭 Neutral Informado';descripcion='Aún no lo tienes claro, y está bien. Tu opinión también vale.';}
+
+  document.getElementById('etiqueta-nivel').textContent = nivel;
+  document.getElementById('descripcion-nivel').textContent = descripcion;
+
+  ir(10);
+}
+
+function enviarResultado(){
+  const paquete = recolectarTodo();
+  console.log('📤 EcoEstructura · respuestas del consumidor:',paquete);
+  alert('✅ ¡Listo! Gracias por participar.\n\n(En producción: conecta este formulario a tu backend, Google Forms o Typeform)');
+}
+
+function recolectarTodo(){
+  const salida = {tipo:'consumidor',edad:document.getElementById('pre_edad').value,ocupacion:document.getElementById('pre_ocupacion').value,zona:document.getElementById('pre_zona').value};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(r=>salida[r.name]=r.value);
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(c=>{
+    salida[c.name]=salida[c.name]?(salida[c.name]+','+c.value):c.value;
+  });
+  salida.empaques=datos.empaques;
+  salida.peor_experiencia=document.getElementById('pre_peor').value;
+  salida.contacto=document.getElementById('pre_contacto').value;
+  return salida;
+}
+
+// arrastrar y ordenar
+let arrastrado=null;
+document.querySelectorAll('.item-ordenar').forEach(item=>{
+  item.addEventListener('dragstart',e=>{
+    arrastrado=item;
+    item.classList.add('arrastrando');
+    e.dataTransfer.effectAllowed='move';
+  });
+  item.addEventListener('dragend',e=>{
+    item.classList.remove('arrastrando');
+    actualizarPosiciones();
+  });
+  item.addEventListener('dragover',e=>{
+    e.preventDefault();
+    const lista=item.parentNode;
+    const rect=item.getBoundingClientRect();
+    const despues=(e.clientY-rect.top)/rect.height>.5;
+    lista.insertBefore(arrastrado, despues?item.nextSibling:item);
+  });
+});
+
+function actualizarPosiciones(){
+  document.querySelectorAll('#lista-ordenar .item-ordenar').forEach((it,i)=>{
+    it.querySelector('.posicion').textContent='#'+(i+1);
+  });
+}
+
+// contador de caracteres
+document.getElementById('pre_peor').addEventListener('input',e=>{
+  document.getElementById('contador').textContent=e.target.value.length;
+});
+</script>
+</body>
+</html>
